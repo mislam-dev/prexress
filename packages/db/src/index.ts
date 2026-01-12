@@ -1,2 +1,6 @@
 export { DatabaseClient } from "./DatabaseClient";
-export { DatabaseClientToken, type IDatabaseClient } from "./IDatabaseClient";
+export {
+  DatabaseClientToken,
+  type IDatabaseClient,
+  type IDatabaseClientDriver,
+} from "./IDatabaseClient";

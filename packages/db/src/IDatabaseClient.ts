@@ -18,10 +18,12 @@ export type DatabaseConfig = {
 
 export type DBOptions = {
   config?: DatabaseConfig;
+  modulePath: string;
 };
 
-export interface IDatabaseClient {
-  connect(url: DBConnectionString, options: DBOptions): Promise<void>;
+export interface IDatabaseClientDriver {
+  connect(): Promise<void>;
+  init(): Promise<Client>;
   disconnect(): Promise<void>;
   getClient(): Client;
   isConnected(): boolean;
@@ -32,3 +34,19 @@ export interface IDatabaseClient {
 }
 
 export const DatabaseClientToken = Symbol("DatabaseClientToken");
+
+export interface IDatabaseClient {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  getClient(): Client;
+  isConnected(): boolean;
+  init(): Promise<Client>;
+  executeQuery<T>(
+    label: string,
+    queryFn: (db: Client) => Promise<T>
+  ): Promise<T>;
+}
+
+export type DatabaseClientOptions = {
+  orm: ORM;
+};
