@@ -11,7 +11,7 @@
     }
   },
   "scripts": {
-    "dev": "tsc -watch",
+    "dev": "tsc -w",
     "build": "tsc",
     "test": "",
     "clear": "rimraf dist",
