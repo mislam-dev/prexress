@@ -1,6 +1,6 @@
-import { IncomingMessage, ServerResponse } from 'node:http';
+import { IncomingMessage, ServerResponse } from "node:http";
 
-export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS";
 
 export interface Request {
   nodeReq: IncomingMessage;

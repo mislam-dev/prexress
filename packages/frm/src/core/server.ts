@@ -3,12 +3,12 @@ import { createServer, IncomingMessage, ServerResponse } from "http";
 import { MiddlewareManager } from "./Middleware";
 import { RequestImpl } from "./Request";
 import { ResponseImpl } from "./Response";
-import { Router } from "./Router";
+import { Router, RouterManager } from "./router";
 import { Handler, Middleware, Request, Response } from "./types";
 
 export class Server extends EventEmitter {
   private server: ReturnType<typeof createServer>;
-  private router = new Router();
+  private routerManager: RouterManager = new RouterManager();
   private middlewareManager: MiddlewareManager = new MiddlewareManager();
   // get routers
   constructor() {
@@ -29,7 +29,7 @@ export class Server extends EventEmitter {
     await req.parseBody();
 
     // Step 3: Match the route
-    const matchResult = this.router.match(req.method, req.path);
+    const matchResult = this.routerManager.match(req.method, req.path);
 
     req.params = matchResult?.params || {};
     req.originalPath = matchResult?.originalPath || "";
@@ -48,8 +48,29 @@ export class Server extends EventEmitter {
     this.emit("request:processed");
   }
 
-  use(pathOrMiddleware: string | Middleware, middleware?: Middleware) {
-    this.middlewareManager.use(pathOrMiddleware, middleware);
+  use(
+    pathOrMiddlewareOrRouter: string | Middleware | Router,
+    middleware?: Middleware | Router,
+  ) {
+    if (pathOrMiddlewareOrRouter instanceof Router) {
+      this.routerManager.addRouter("/", pathOrMiddlewareOrRouter);
+      return;
+    }
+
+    if (typeof pathOrMiddlewareOrRouter === "function") {
+      this.middlewareManager.use("/", pathOrMiddlewareOrRouter);
+      return;
+    }
+
+    if (middleware instanceof Router) {
+      this.routerManager.addRouter(pathOrMiddlewareOrRouter, middleware);
+      return;
+    }
+    if (typeof middleware === "function") {
+      this.middlewareManager.use(pathOrMiddlewareOrRouter, middleware);
+      return;
+    }
+    return;
   }
 
   get(path: string, ...handlers: Handler[]) {
@@ -58,7 +79,7 @@ export class Server extends EventEmitter {
       this.middlewareManager.use(path, middleware);
     });
     const finalHandler = handlers[handlers.length - 1]!;
-    this.router.add("GET", path, finalHandler);
+    this.routerManager.add("GET", path, finalHandler);
   }
 
   post(path: string, ...handlers: Handler[]) {
@@ -67,7 +88,7 @@ export class Server extends EventEmitter {
       this.middlewareManager.use(path, middleware);
     });
     const finalHandler = handlers[handlers.length - 1]!;
-    this.router.add("POST", path, finalHandler);
+    this.routerManager.add("POST", path, finalHandler);
   }
 
   put(path: string, ...handlers: Handler[]) {
@@ -76,7 +97,7 @@ export class Server extends EventEmitter {
       this.middlewareManager.use(path, middleware);
     });
     const finalHandler = handlers[handlers.length - 1]!;
-    this.router.add("PUT", path, finalHandler);
+    this.routerManager.add("PUT", path, finalHandler);
   }
 
   patch(path: string, ...handlers: Handler[]) {
@@ -85,7 +106,7 @@ export class Server extends EventEmitter {
       this.middlewareManager.use(path, middleware);
     });
     const finalHandler = handlers[handlers.length - 1]!;
-    this.router.add("PATCH", path, finalHandler);
+    this.routerManager.add("PATCH", path, finalHandler);
   }
 
   delete(path: string, ...handlers: Handler[]) {
@@ -94,7 +115,7 @@ export class Server extends EventEmitter {
       this.middlewareManager.use(path, middleware);
     });
     const finalHandler = handlers[handlers.length - 1]!;
-    this.router.add("DELETE", path, finalHandler);
+    this.routerManager.add("DELETE", path, finalHandler);
   }
 
   listen(port: number, callback?: () => void) {

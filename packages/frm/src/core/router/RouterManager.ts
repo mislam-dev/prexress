@@ -1,4 +1,5 @@
-import { Handler, Method } from "./types";
+import { Handler, Method } from "../types";
+import { Router } from "./Router";
 
 export class TrieNode {
   path = "";
@@ -14,7 +15,7 @@ type MatchResult = {
   originalPath: string;
 };
 
-export class Router {
+export class RouterManager {
   private root: TrieNode = new TrieNode();
 
   add(method: Method, path: string, handler: Handler): void {
@@ -80,6 +81,14 @@ export class Router {
       };
     }
     return null;
+  }
+
+  addRouter(path: string, router: Router): void {
+    router.routes.forEach((route) => {
+      const finalHandler = route.handlers[route.handlers.length - 1]!;
+      const finalPath = path === "/" ? route.path : path + route.path;
+      this.add(route.method, finalPath, finalHandler);
+    });
   }
 
   // helper
