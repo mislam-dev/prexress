@@ -54,6 +54,9 @@ export class Server extends EventEmitter {
   ) {
     if (pathOrMiddlewareOrRouter instanceof Router) {
       this.routerManager.addRouter("/", pathOrMiddlewareOrRouter);
+      pathOrMiddlewareOrRouter.middlewares.forEach((middleware) => {
+        this.middlewareManager.use("/", middleware);
+      });
       return;
     }
 
@@ -64,6 +67,9 @@ export class Server extends EventEmitter {
 
     if (middleware instanceof Router) {
       this.routerManager.addRouter(pathOrMiddlewareOrRouter, middleware);
+      middleware.middlewares.forEach((middleware) => {
+        this.middlewareManager.use(pathOrMiddlewareOrRouter, middleware);
+      });
       return;
     }
     if (typeof middleware === "function") {

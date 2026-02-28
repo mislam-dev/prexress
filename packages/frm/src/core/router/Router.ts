@@ -8,6 +8,7 @@ export type Route = {
 
 export class Router {
   private all_routes: Route[] = [];
+  private all_middleware: Handler[] = [];
 
   public get(path: string, ...handlers: Handler[]) {
     this.all_routes.push({ method: "GET", path, handlers });
@@ -28,9 +29,16 @@ export class Router {
   public patch(path: string, ...handlers: Handler[]) {
     this.all_routes.push({ method: "PATCH", path, handlers });
   }
+  public use(...handlers: Handler[]) {
+    console.log(handlers);
+    this.all_middleware.push(...handlers);
+  }
 
   public get routes(): Route[] {
     return this.all_routes;
+  }
+  public get middlewares(): Handler[] {
+    return this.all_middleware;
   }
 }
 export const createRouter = () => new Router();
