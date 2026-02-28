@@ -1,0 +1,36 @@
+{
+  "name": "@prexress/new_fr",
+  "version": "1.2.1",
+  "description": "A TypeScript framework for building scalable backend applications with Prisma",
+  "main": "index.js",
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifiers": true
+  },
+  "scripts": {
+    "start": "ts-node --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
+    "dev": "ts-node-dev --loader ts-node/esm --respawn  --transpile-only -r tsconfig-paths/register src/index.ts",
+    "build": "tsc && tsc-alias",
+    "test": "jest",
+    "clear": "rm -rf dist",
+    "lint": "eslint src --ext .ts",
+    "check-types": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@prexress/typescript-config": "workspace:*",
+    "@types/node": "^22.13.11",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsc": "^2.0.4",
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@prexress/frm": "workspace:*"
+  },
+  "private": true
+}

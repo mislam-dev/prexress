@@ -1,0 +1,30 @@
+{
+  "name": "@prexress/frm",
+  "version": "0.0.4",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsc -watch",
+    "build": "tsc",
+    "test": "",
+    "clear": "rimraf dist",
+    "check:types": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@prexress/eslint-config": "workspace:*",
+    "@prexress/typescript-config": "workspace:*",
+    "@types/node": "^22.13.11",
+    "rimraf": "^6.0.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
