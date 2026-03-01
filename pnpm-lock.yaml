@@ -102,6 +102,9 @@ importers:
       '@prexress/frm':
         specifier: workspace:*
         version: link:../../packages/frm
+      '@prexress/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
     devDependencies:
       '@prexress/typescript-config':
         specifier: workspace:*
@@ -267,6 +270,21 @@ importers:
         version: 8.32.0(eslint@9.27.0(jiti@2.4.2))(typescript@5.8.2)
 
   packages/frm:
+    devDependencies:
+      '@prexress/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@prexress/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^22.13.11
+        version: 22.15.3
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+
+  packages/logger:
     devDependencies:
       '@prexress/eslint-config':
         specifier: workspace:*

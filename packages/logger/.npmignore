@@ -1,0 +1,10 @@
+src/
+tsconfig.json
+.env*
+.DS_Store
+node_modules/
+coverage/
+.nyc_output/
+.turbo/
+eslint.config.ts
+CHANGELOG.md

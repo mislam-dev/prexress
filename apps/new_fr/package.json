@@ -30,7 +30,8 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@prexress/frm": "workspace:*"
+    "@prexress/frm": "workspace:*",
+    "@prexress/logger": "workspace:*"
   },
   "private": true
 }
