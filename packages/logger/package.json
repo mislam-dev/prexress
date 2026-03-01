@@ -8,6 +8,18 @@
     ".": {
       "types": "./dist/index.d.ts",
       "require": "./dist/index.js"
+    },
+    "./middleware": {
+      "types": "./dist/middleware/pxr-logger.d.ts",
+      "require": "./dist/middleware/pxr-logger.js"
+    },
+    "./transporters": {
+      "types": "./dist/transporters/index.d.ts",
+      "require": "./dist/transporters/index.js"
+    },
+    "./formatters": {
+      "types": "./dist/formatters/index.d.ts",
+      "require": "./dist/formatters/index.js"
     }
   },
   "scripts": {
@@ -17,7 +29,9 @@
     "clear": "rimraf dist",
     "check:types": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@prexress/frm": "workspace:*"
+  },
   "devDependencies": {
     "@prexress/eslint-config": "workspace:*",
     "@prexress/typescript-config": "workspace:*",

@@ -1,5 +1,5 @@
-import { JsonFormatter } from "@/formatters";
 import fs from "fs";
+import { JsonFormatter } from "../formatters";
 import { Formatter, LogEntry, Transporter } from "../logger/types";
 export type FileTransPorterOptions = {
   logDir?: string;

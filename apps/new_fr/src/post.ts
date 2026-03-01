@@ -19,6 +19,11 @@ export const postRouter = createRouter();
 postRouter.get("/posts", (req, res) => {
   res.json({ data: posts });
 });
+postRouter.post("/posts", (req, res) => {
+  const body = req.body;
+
+  res.json({ data: body });
+});
 
 postRouter.get("/posts/:id", (req, res) => {
   const id = req.params.id;
