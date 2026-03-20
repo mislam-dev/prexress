@@ -1,4 +1,10 @@
-import { Application, RequestHandler, Router } from "express";
+import {
+  Application,
+  createRouter,
+  Handler,
+  Request,
+  Response,
+} from "@prexress/frm";
 import "reflect-metadata";
 import { container } from "tsyringe";
 import {
@@ -13,12 +19,12 @@ type Constructor = new (...args: any[]) => {};
 type ControllerMetaData = {
   basePath: string;
   routes: RouteDefinition[];
-  middlewares: RequestHandler[];
+  middlewares: Handler[];
 };
 
 export function registerController(
   app: Application,
-  controllers: Constructor[]
+  controllers: Constructor[],
 ) {
   controllers.forEach((Controller: Constructor) => {
     const controllerInstance = container.resolve(Controller);
@@ -27,37 +33,39 @@ export function registerController(
       basePath: Reflect.getMetadata(CONTROLLER_KEY, Controller),
       routes: Reflect.getMetadata(
         ROUTE_KEY,
-        Controller.prototype
+        Controller.prototype,
       ) as RouteDefinition[],
       middlewares:
         (Reflect.getMetadata(
           CONTROLLER_MIDDLEWARE_KEY,
-          Controller
-        ) as RequestHandler[]) || [],
+          Controller,
+        ) as Handler[]) || [],
     };
 
     if (!controllerMetaData.basePath) {
       throw new Error(
-        `[registerController]: base must be defined for controller ${Controller.name}`
+        `[registerController]: base must be defined for controller ${Controller.name}`,
       );
     }
     if (!controllerMetaData.routes.length) {
       throw new Error(
-        `[registerController]: routes must be defined for controller ${Controller.name}`
+        `[registerController]: routes must be defined for controller ${Controller.name}`,
       );
     }
 
-    const router: Router = Router();
+    const router = createRouter();
 
     if (controllerMetaData.middlewares.length > 0) {
-      router.use(controllerMetaData.middlewares);
+      controllerMetaData.middlewares.forEach((m) => {
+        router.use(m);
+      });
       console.log("[registerController]: controllers middlewares applied!");
     }
 
     controllerMetaData.routes.forEach((route: RouteDefinition) => {
       if (!(route.methodName in controllerInstance)) {
         throw new Error(
-          `[registerController]: method ${route.methodName} not defined in controller ${Controller.name}`
+          `[registerController]: method ${route.methodName} not defined in controller ${Controller.name}`,
         );
       }
 
@@ -65,15 +73,23 @@ export function registerController(
         (Reflect.getMetadata(
           MIDDLEWARE_KEY,
           Controller.prototype,
-          route.methodName
-        ) as RequestHandler[]) || [];
+          route.methodName,
+        ) as Handler[]) || [];
 
       const handler = (controllerInstance as any)[route.methodName].bind(
-        controllerInstance
+        controllerInstance,
       );
-      router[route.method](route.path, [...middlewares, handler]);
-    });
+      const handleWithError: Handler = async (req: Request, res: Response) => {
+        try {
+          return await handler(req, res);
+        } catch {
+          // todo pass to next value when global error handler implement
+          return res.status(500).json({ message: "Internal Server error" });
+        }
+      };
 
+      router[route.method](route.path, ...[...middlewares, handleWithError]);
+    });
     app.use(controllerMetaData.basePath, router);
   });
 }

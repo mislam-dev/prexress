@@ -1,4 +1,5 @@
 import { IncomingMessage, ServerResponse } from "node:http";
+import { Server } from "./server";
 
 export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS";
 
@@ -29,8 +30,10 @@ export type Handler = (
   next?: NextFunction,
 ) => void | Promise<void>;
 
+export type NextFnError = Error;
+
 export interface NextFunction {
-  (error?: Error): void;
+  (error?: NextFnError): void;
 }
 
 export type Middleware = (
@@ -38,3 +41,5 @@ export type Middleware = (
   res: Response,
   next: NextFunction,
 ) => void | Promise<void>;
+
+export type Application = InstanceType<typeof Server>;

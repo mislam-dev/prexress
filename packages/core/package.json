@@ -20,6 +20,7 @@
   "dependencies": {
     "drizzle-orm": "^0.44.0",
     "@prexress/db": "workspace:*",
+    "@prexress/frm": "workspace:*",
     "express": "^4.21.2",
     "pg": "^8.16.0",
     "reflect-metadata": "^0.2.2",

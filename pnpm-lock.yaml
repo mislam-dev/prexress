@@ -29,6 +29,9 @@ importers:
       '@prexress/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@prexress/frm':
+        specifier: workspace:*
+        version: link:../../packages/frm
       config:
         specifier: ^4.0.0
         version: 4.0.0
@@ -167,6 +170,9 @@ importers:
       '@prexress/db':
         specifier: workspace:*
         version: link:../db
+      '@prexress/frm':
+        specifier: workspace:*
+        version: link:../frm
       drizzle-orm:
         specifier: ^0.44.0
         version: 0.44.0(@prisma/client@6.8.2(prisma@6.8.2(typescript@5.8.2))(typescript@5.8.2))(@types/pg@8.15.2)(mysql2@3.14.1)(pg@8.16.0)(prisma@6.8.2(typescript@5.8.2))
