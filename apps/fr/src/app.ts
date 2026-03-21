@@ -16,12 +16,6 @@ dotenv.config();
 export function createApp() {
   const app: Application = createApplication();
 
-  // basic middlewares
-  // app.use(cors({ origin: true }));
-  // app.use(morgan("dev"));
-  // app.use(express.urlencoded({ extended: true }));
-  // app.use(express.json());
-
   // health route
   app.get("/health", (req: Request, res: Response) => {
     try {

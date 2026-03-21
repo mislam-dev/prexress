@@ -10,7 +10,6 @@ export class UserController {
 
   @GET("/")
   async find(_req: Request, res: Response, next: NextFunction) {
-    console.log("user controller find");
     const data = await this.userService.findAll();
     return res.status(200).json(data);
   }
