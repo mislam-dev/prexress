@@ -1,5 +1,4 @@
 import path from "path";
-import { Pool } from "pg";
 import {
   Client,
   DatabaseClientOptions,
@@ -15,17 +14,13 @@ const defaultOptions: DatabaseClientOptions = {
 };
 
 export class DatabaseClient implements IDatabaseClient {
-  protected pool: Pool | null = null;
-  protected client: Client | null = null;
-  protected isConnect = false;
-
   private driver: IDatabaseClientDriver;
   protected modulesDir: string = path.resolve(process.cwd(), "src", "modules");
   orm: ORM;
 
   constructor(
     readonly url: DBConnectionString,
-    readonly options: DatabaseClientOptions = defaultOptions
+    readonly options: DatabaseClientOptions = defaultOptions,
   ) {
     this.orm = options.orm;
     if (options.orm === "drizzle") {
@@ -48,7 +43,6 @@ export class DatabaseClient implements IDatabaseClient {
   }
 
   getClient() {
-    this.client;
     return this.driver.getClient();
   }
 
@@ -58,7 +52,7 @@ export class DatabaseClient implements IDatabaseClient {
 
   async executeQuery<T>(
     label: string,
-    queryFn: (db: Client) => Promise<T>
+    queryFn: (db: Client) => Promise<T>,
   ): Promise<T> {
     return this.driver.executeQuery<T>(label, queryFn);
   }
