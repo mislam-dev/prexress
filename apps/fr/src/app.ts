@@ -5,6 +5,7 @@ import {
   Request,
   Response,
 } from "@prexress/frm";
+import { NotFoundRequestHandler } from "@prexress/frm/libs/handlers";
 import dotenv from "dotenv";
 import { UserController } from "./modules/user/user.controller";
 dotenv.config();
@@ -36,10 +37,11 @@ export function createApp() {
 
   registerController(app, [UserController]);
 
-  // 404 not found handler
-  // app.use((_req, res: Response) => {
-  //   res.status(404).json({ message: "Not found" });
-  // });
+  app.use(
+    new NotFoundRequestHandler((_req: Request, res: Response) => {
+      res.status(404).json({ message: "Not found!" });
+    }),
+  );
 
   // 500 internal server error handler
   // app.use((err: any, _req: any, res: Response, _next: any) => {

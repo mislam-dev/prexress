@@ -8,6 +8,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "require": "./dist/index.js"
+    },
+    "./libs/handlers": {
+      "types": "./dist/libs/handlers/index.d.ts",
+      "require": "./dist/libs/handlers/index.js"
     }
   },
   "scripts": {

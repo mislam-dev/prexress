@@ -1,5 +1,6 @@
 import EventEmitter from "events";
 import { createServer, IncomingMessage, ServerResponse } from "http";
+import { NotFoundRequestHandler } from "../libs/handlers";
 import { MiddlewareManager } from "./Middleware";
 import { RequestImpl } from "./Request";
 import { ResponseImpl } from "./Response";
@@ -10,6 +11,7 @@ export class Server extends EventEmitter {
   private server: ReturnType<typeof createServer>;
   private routerManager: RouterManager = new RouterManager();
   private middlewareManager: MiddlewareManager = new MiddlewareManager();
+  private notFoundHandler: NotFoundRequestHandler | null = null;
   // get routers
   constructor() {
     super();
@@ -35,12 +37,18 @@ export class Server extends EventEmitter {
     req.originalPath = matchResult?.originalPath || "";
 
     // Step 4:  Execute the handler or middleware chain
-    const finalHandler = matchResult?.handler
-      ? matchResult.handler
-      : (req: Request, res: Response) => {
-          res.status(404).json({ message: "Route not found", status: "error" });
-          return;
-        };
+    let finalHandler: Handler;
+
+    if (matchResult?.handler) {
+      finalHandler = matchResult.handler;
+    } else if (this.notFoundHandler) {
+      finalHandler = this.notFoundHandler.handler;
+    } else {
+      finalHandler = (req: Request, res: Response) => {
+        res.status(404).json({ message: "Route not found", status: "error" });
+        return;
+      };
+    }
 
     this.middlewareManager.execute(req, res, finalHandler);
 
@@ -49,9 +57,17 @@ export class Server extends EventEmitter {
   }
 
   use(
-    pathOrMiddlewareOrRouter: string | Middleware | Router,
+    pathOrMiddlewareOrRouter:
+      | string
+      | Middleware
+      | Router
+      | NotFoundRequestHandler,
     middleware?: Middleware | Router,
   ) {
+    if (pathOrMiddlewareOrRouter instanceof NotFoundRequestHandler) {
+      this.notFoundHandler = pathOrMiddlewareOrRouter;
+      return;
+    }
     if (pathOrMiddlewareOrRouter instanceof Router) {
       this.routerManager.addRouter("/", pathOrMiddlewareOrRouter);
       pathOrMiddlewareOrRouter.middlewares.forEach((middleware) => {
