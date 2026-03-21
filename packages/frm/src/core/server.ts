@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 import { createServer, IncomingMessage, ServerResponse } from "http";
-import { NotFoundRequestHandler } from "../libs/handlers";
+import { GlobalErrorHandler, NotFoundRequestHandler } from "../libs/handlers";
 import { MiddlewareManager } from "./Middleware";
 import { RequestImpl } from "./Request";
 import { ResponseImpl } from "./Response";
@@ -12,6 +12,7 @@ export class Server extends EventEmitter {
   private routerManager: RouterManager = new RouterManager();
   private middlewareManager: MiddlewareManager = new MiddlewareManager();
   private notFoundHandler: NotFoundRequestHandler | null = null;
+  private globalErrorHandler: GlobalErrorHandler | null = null;
   // get routers
   constructor() {
     super();
@@ -50,8 +51,16 @@ export class Server extends EventEmitter {
       };
     }
 
-    this.middlewareManager.execute(req, res, finalHandler);
-
+    try {
+      await this.middlewareManager.execute(req, res, finalHandler);
+    } catch (error) {
+      if (this.globalErrorHandler) {
+        this.globalErrorHandler.handler(error, req, res);
+      }
+      if (!res.nodeRes.writableEnded) {
+        res.status(500).json({ message: "Internal Server Error" });
+      }
+    }
     // finally
     this.emit("request:processed");
   }
@@ -61,11 +70,16 @@ export class Server extends EventEmitter {
       | string
       | Middleware
       | Router
-      | NotFoundRequestHandler,
+      | NotFoundRequestHandler
+      | GlobalErrorHandler,
     middleware?: Middleware | Router,
   ) {
     if (pathOrMiddlewareOrRouter instanceof NotFoundRequestHandler) {
       this.notFoundHandler = pathOrMiddlewareOrRouter;
+      return;
+    }
+    if (pathOrMiddlewareOrRouter instanceof GlobalErrorHandler) {
+      this.globalErrorHandler = pathOrMiddlewareOrRouter;
       return;
     }
     if (pathOrMiddlewareOrRouter instanceof Router) {

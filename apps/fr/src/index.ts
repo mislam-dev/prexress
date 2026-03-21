@@ -10,7 +10,6 @@ async function main() {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {
-    console.log({ error });
     console.log("failed to start app");
     process.exit(1);
   }

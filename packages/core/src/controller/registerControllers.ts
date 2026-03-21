@@ -1,9 +1,7 @@
 import {
   Application,
   createRouter,
-  Handler,
-  Request,
-  Response,
+  Handler
 } from "@prexress/frm";
 import "reflect-metadata";
 import { container } from "tsyringe";
@@ -79,16 +77,8 @@ export function registerController(
       const handler = (controllerInstance as any)[route.methodName].bind(
         controllerInstance,
       );
-      const handleWithError: Handler = async (req: Request, res: Response) => {
-        try {
-          return await handler(req, res);
-        } catch {
-          // todo pass to next value when global error handler implement
-          return res.status(500).json({ message: "Internal Server error" });
-        }
-      };
 
-      router[route.method](route.path, ...[...middlewares, handleWithError]);
+      router[route.method](route.path, ...[...middlewares, handler]);
     });
     app.use(controllerMetaData.basePath, router);
   });

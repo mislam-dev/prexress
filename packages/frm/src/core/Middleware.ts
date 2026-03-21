@@ -31,9 +31,8 @@ export class MiddlewareManager {
     let index = 0;
     const next = async (error?: Error) => {
       if (error) {
-        // todo handles error globally here.
-        res.status(500).json({ message: "Internal Server Error", error });
-        return;
+        console.log("from middleware manager ->");
+        throw error;
       }
       if (res.nodeRes.writableEnded) {
         return;

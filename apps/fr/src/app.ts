@@ -5,7 +5,10 @@ import {
   Request,
   Response,
 } from "@prexress/frm";
-import { NotFoundRequestHandler } from "@prexress/frm/libs/handlers";
+import {
+  GlobalErrorHandler,
+  NotFoundRequestHandler,
+} from "@prexress/frm/libs/handlers";
 import dotenv from "dotenv";
 import { UserController } from "./modules/user/user.controller";
 dotenv.config();
@@ -31,8 +34,7 @@ export function createApp() {
   });
 
   app.get("/", (req: Request, res: Response) => {
-    res.status(200).json({ message: "Welcome to the API" });
-    return;
+    res.status(200).json({ message: "UP" });
   });
 
   registerController(app, [UserController]);
@@ -44,10 +46,11 @@ export function createApp() {
   );
 
   // 500 internal server error handler
-  // app.use((err: any, _req: any, res: Response, _next: any) => {
-  //   console.error("err");
-  //   res.status(500).json({ message: "Internal Server Error" });
-  //   return;
-  // });
+  app.use(
+    new GlobalErrorHandler((error, _req: Request, res: Response) => {
+      console.log(error);
+      res.status(500).json({ message: "Internal Server Error | from apps" });
+    }),
+  );
   return app;
 }

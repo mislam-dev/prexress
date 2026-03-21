@@ -18,7 +18,7 @@ export class DrizzleDriver implements IDatabaseClientDriver {
 
   constructor(
     readonly url: DBConnectionString,
-    readonly options: DBOptions
+    readonly options: DBOptions,
   ) {
     const pgPool = new Pool({
       connectionString: url,
@@ -42,10 +42,9 @@ export class DrizzleDriver implements IDatabaseClientDriver {
   async connect(): Promise<void> {
     try {
       await this.pool?.connect();
-      console.log("database connected!");
       this.isConnect = true;
     } catch (error) {
-      console.log("Failed to connect to database", error);
+      throw new Error("Failed to connect to database");
     }
   }
 
@@ -54,7 +53,7 @@ export class DrizzleDriver implements IDatabaseClientDriver {
       await this.pool?.end();
       this.isConnect = false;
     } catch (error) {
-      console.log("Failed to disconnect to database", error);
+      throw new Error("Failed to disconnect to database");
     }
   }
 
@@ -71,21 +70,11 @@ export class DrizzleDriver implements IDatabaseClientDriver {
 
   async executeQuery<T>(
     label: string,
-    queryFn: (db: Client) => Promise<T>
+    queryFn: (db: Client) => Promise<T>,
   ): Promise<T> {
-    const start = performance.now();
-
     try {
-      const result = await queryFn(this.client!);
-      const duration = performance.now() - start;
-
-      console.log(`[${label}] completed in ${duration.toFixed(2)}ms`);
-      return result;
+      return await queryFn(this.client!);
     } catch (error) {
-      const duration = performance.now() - start;
-      console.error(`[${label}] failed in ${duration.toFixed(2)}ms`);
-      console.log(error);
-
       throw new Error(`[${label}] Database query failed`);
     }
   }
@@ -101,7 +90,7 @@ export class DrizzleDriver implements IDatabaseClientDriver {
           return [fullPath];
         }
         return [];
-      })
+      }),
     );
 
     return files.flat();
@@ -109,7 +98,6 @@ export class DrizzleDriver implements IDatabaseClientDriver {
 
   private async loadAllSchemas() {
     try {
-      console.log(this.modulesDir);
       const files = await this.getAllSchemaFiles(this.modulesDir);
 
       const allSchemas: Record<string, any> = {};
@@ -122,7 +110,7 @@ export class DrizzleDriver implements IDatabaseClientDriver {
 
       return allSchemas;
     } catch (error) {
-      console.log(error);
+      throw new Error("[drizzle.driver]: schema loads failed!");
     }
   }
 }
