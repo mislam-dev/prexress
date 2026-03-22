@@ -56,6 +56,7 @@ export class Server extends EventEmitter {
     } catch (error) {
       if (this.globalErrorHandler) {
         this.globalErrorHandler.handler(error, req, res);
+        return;
       }
       if (!res.nodeRes.writableEnded) {
         res.status(500).json({ message: "Internal Server Error" });
@@ -83,10 +84,7 @@ export class Server extends EventEmitter {
       return;
     }
     if (pathOrMiddlewareOrRouter instanceof Router) {
-      this.routerManager.addRouter("/", pathOrMiddlewareOrRouter);
-      pathOrMiddlewareOrRouter.middlewares.forEach((middleware) => {
-        this.middlewareManager.use("/", middleware);
-      });
+      this.registerRouter("/", pathOrMiddlewareOrRouter);
       return;
     }
 
@@ -96,17 +94,41 @@ export class Server extends EventEmitter {
     }
 
     if (middleware instanceof Router) {
-      this.routerManager.addRouter(pathOrMiddlewareOrRouter, middleware);
-      middleware.middlewares.forEach((middleware) => {
-        this.middlewareManager.use(pathOrMiddlewareOrRouter, middleware);
-      });
+      this.registerRouter(pathOrMiddlewareOrRouter as string, middleware);
       return;
     }
+
     if (typeof middleware === "function") {
-      this.middlewareManager.use(pathOrMiddlewareOrRouter, middleware);
+      this.middlewareManager.use(pathOrMiddlewareOrRouter as string, middleware);
       return;
     }
-    return;
+  }
+
+  private registerRouter(basePath: string, router: Router) {
+    // 1. Register router-level middlewares
+    router.middlewares.forEach((m) => {
+      this.middlewareManager.use(basePath, m);
+    });
+
+    // 2. Register each route from the router
+    router.routes.forEach((route) => {
+      const finalPath =
+        basePath === "/"
+          ? route.path
+          : basePath + (route.path === "/" ? "" : route.path);
+
+      const handlers = route.handlers;
+      const middlewares = handlers.slice(0, -1);
+      const finalHandler = handlers[handlers.length - 1]!;
+
+      // Register intermediate middlewares for this specific route
+      middlewares.forEach((m) => {
+        this.middlewareManager.use(finalPath, m);
+      });
+
+      // Register final handler
+      this.routerManager.add(route.method, finalPath, finalHandler);
+    });
   }
 
   get(path: string, ...handlers: Handler[]) {

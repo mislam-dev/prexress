@@ -1,7 +1,8 @@
 import { UserService } from "@/modules/user/user.service";
-import { Controller, GET, POST } from "@prexress/core";
-import type { NextFunction, Handler as Request, Response } from "@prexress/frm";
+import { Controller, GET, POST, UseDTO } from "@prexress/core";
+import type { NextFunction, Request, Response } from "@prexress/frm";
 import { autoInjectable } from "tsyringe";
+import { CreateUserDto } from "./dtos/create-user.dto";
 
 @autoInjectable()
 @Controller("/user")
@@ -14,13 +15,11 @@ export class UserController {
     return res.status(200).json(data);
   }
 
+  @UseDTO(CreateUserDto)
   @POST("/")
-  async create(req: Request, res: Response, next: NextFunction) {
-    if (!req.body || Object.keys(req.body).length <= 0) {
-      throw new Error("No body");
-    }
-    const newData = await this.userService.create(req.body);
-    return res.status(200).json(newData);
+  async create(req: Request<any, any, CreateUserDto>, res: Response) {
+    // const newData = await this.userService.create(req.body);
+    return res.status(200).json(req.body);
   }
 }
 
